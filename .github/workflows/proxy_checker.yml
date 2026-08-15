@@ -2,19 +2,20 @@ name: Automated Proxy Health Checker
 
 on:
   schedule:
-    # প্রতি ১০ মিনিট পর পর অটো-রান হবে
     - cron: '*/10 * * * *'
   workflow_dispatch:
+  push:
+    branches: [ main ]
 
 jobs:
   check-proxies:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: setup-python@v4
+        uses: setup-python@v5
         with:
           python-version: '3.10'
 
@@ -26,4 +27,5 @@ jobs:
         env:
           SUPABASE_URL: "https://bsmxgksbiwpplkefkagl.supabase.co"
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-        run: python checker.py
+        run: |
+          python checker.py
