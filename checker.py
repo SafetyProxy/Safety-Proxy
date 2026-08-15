@@ -12,8 +12,8 @@ SUPABASE_KEY = os.getenv("SUPABASE_SECRET_KEY", "sb_publishable_TnP-AMERiSCQMGXo
 # ============================================================================
 # 🤖 TELEGRAM BOT ALERT CONFIGURATION
 # ============================================================================
-TG_BOT_TOKEN = "8604325601:AAE2Y_DMUf2m10Fvlzyha2rlGHmY0-1ocqE"  # 👈 Enter your Telegram Bot Token here
-TG_CHAT_ID = "1818646983"                # 👈 Enter your Telegram Chat ID here
+TG_BOT_TOKEN = "8061946758:AAEjNcllL6ctgZoH5coI8Z64ypW_WOAt_Mc"  # 👈 Enter your Telegram Bot Token here
+TG_CHAT_ID = "7544280143"                # 👈 Enter your Telegram Chat ID here
 
 GEO_TARGET_URL = "http://ip-api.com/json/?fields=status,country,countryCode,regionName,city,isp,query"
 TIMEOUT_SECONDS = 10
