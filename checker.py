@@ -1,11 +1,9 @@
-
 import os
 import time
 import asyncio
 import aiohttp
 from aiohttp_socks import ProxyConnector
 
-# Supabase URL & Key from Environment
 SUPABASE_URL = os.getenv("SUPABASE_URL", "https://bsmxgksbiwpplkefkagl.supabase.co")
 SUPABASE_KEY = os.getenv("SUPABASE_SECRET_KEY", "sb_publishable_TnP-AMERiSCQMGXo-5cHOQ_ECVyDWut")
 
@@ -28,7 +26,7 @@ async def test_proxy(proxy_item, semaphore, session_updater):
 
     async with semaphore:
         is_alive = False
-        latency_ms = 9999
+        latency_ms = 0
         start_time = time.time()
         
         try:
@@ -43,9 +41,8 @@ async def test_proxy(proxy_item, semaphore, session_updater):
             is_alive = False
 
         status = "Active" if is_alive else "Dead"
-        print(f"[{status}] {host}:{port} -> {latency_ms} ms")
 
-        # Update status in Supabase
+        # Update status & speed in Supabase
         update_url = f"{SUPABASE_URL}/rest/v1/proxies?id=eq.{proxy_id}"
         headers = {
             "apikey": SUPABASE_KEY,
@@ -55,14 +52,18 @@ async def test_proxy(proxy_item, semaphore, session_updater):
         }
         update_data = {
             "status": status,
-            "speed_ms": latency_ms if is_alive else 0,
-            "last_checked": time.strftime("%Y-%m-%d %H:%M:%S")
+            "speed_ms": latency_ms
         }
 
         try:
-            await session_updater.patch(update_url, headers=headers, json=update_data)
+            async with session_updater.patch(update_url, headers=headers, json=update_data) as resp:
+                if resp.status in (200, 204):
+                    print(f"[✓] ID {proxy_id} ({host}:{port}) -> {status} ({latency_ms} ms)")
+                else:
+                    err_msg = await resp.text()
+                    print(f"[X] Failed to update ID {proxy_id}: Status {resp.status} - {err_msg}")
         except Exception as e:
-            print(f"Error updating ID {proxy_id}: {e}")
+            print(f"[X] Exception updating ID {proxy_id}: {e}")
 
 async def main():
     print("[*] Fetching proxies from Supabase...")
@@ -84,7 +85,7 @@ async def main():
         
         tasks = [test_proxy(p, semaphore, session) for p in proxies]
         await asyncio.gather(*tasks)
-        print("[✓] Health Check Completed.")
+        print("[✓] All proxies updated successfully in Supabase.")
 
 if __name__ == "__main__":
     asyncio.run(main())
