@@ -1,0 +1,29 @@
+name: Automated Proxy Health Checker
+
+on:
+  schedule:
+    # প্রতি ১০ মিনিট পর পর অটো-রান হবে
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  check-proxies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          pip install aiohttp aiohttp-socks requests
+
+      - name: Run Health Checker Script
+        env:
+          SUPABASE_URL: "https://bsmxgksbiwpplkefkagl.supabase.co"
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: python checker.py
